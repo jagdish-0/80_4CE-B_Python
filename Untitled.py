@@ -40,5 +40,6 @@ class ChessBoard:
         elif (row, col) in self.pieces:
             self.selected_piece = (row, col)
         self.draw_board()
+        print("selected")
 
 ChessBoard()
