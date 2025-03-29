@@ -51,7 +51,6 @@ class TicTacToe:
     def run(self):
         self.window.mainloop()
 
-# Run the game
 if __name__ == "__main__":
     game = TicTacToe()
     game.run()
