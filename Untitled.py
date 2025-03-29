@@ -1,45 +1,57 @@
 import tkinter as tk
+from tkinter import messagebox
 
-class ChessBoard:
+class TicTacToe:
     def __init__(self):
-        self.root = tk.Tk()
-        self.root.title("Chess Board")
-        self.square_size = 50
-        self.canvas = tk.Canvas(self.root, width=400, height=400)
-        self.canvas.pack()
-        self.selected_piece = None
-        self.pieces = {
-            (0, 0): "♜", (0, 7): "♜", (0, 1): "♞", (0, 6): "♞", (0, 2): "♝", (0, 5): "♝", (0, 3): "♛", (0, 4): "♚", 
-            (7, 0): "♖", (7, 7): "♖", (7, 1): "♘", (7, 6): "♘", (7, 2): "♗", (7, 5): "♗", (7, 3): "♕", (7, 4): "♔"
-        }
-        for i in range(8):
-            self.pieces[(1, i)] = "♟"
-            self.pieces[(6, i)] = "♙"
-        
-        self.draw_board()
-        self.canvas.bind("<Button-1>", self.on_click)
-        self.root.mainloop()
+        self.window = tk.Tk()
+        self.window.title("Tic-Tac-Toe")
+        self.current_player = "X"
+        self.board = [""] * 9
+        self.buttons = []
 
-    def draw_board(self):
-        self.canvas.delete("all")
-        for row in range(8):
-            for col in range(8):
-                x1, y1 = col * self.square_size, row * self.square_size
-                x2, y2 = x1 + self.square_size, y1 + self.square_size
-                color = "white" if (row + col) % 2 == 0 else "gray"
-                self.canvas.create_rectangle(x1, y1, x2, y2, fill=color, outline="gray")
-                if (row, col) in self.pieces:
-                    self.canvas.create_text(x1 + self.square_size // 2, y1 + self.square_size // 2, 
-                                            text=self.pieces[(row, col)], font=("Arial", 24))
+        self.create_board()
 
-    def on_click(self, event):
-        col, row = event.x // self.square_size, event.y // self.square_size
-        if self.selected_piece:
-            self.pieces[(row, col)] = self.pieces.pop(self.selected_piece)
-            self.selected_piece = None
-        elif (row, col) in self.pieces:
-            self.selected_piece = (row, col)
-        self.draw_board()
-        print("selected")
+    def create_board(self):
+        for i in range(9):
+            btn = tk.Button(self.window, text="", font=("Arial", 20), height=3, width=6,
+                            command=lambda i=i: self.on_click(i))
+            btn.grid(row=i // 3, column=i % 3)
+            self.buttons.append(btn)
 
-ChessBoard()
+    def on_click(self, index):
+        if self.board[index] == "" and not self.check_winner():
+            self.board[index] = self.current_player
+            self.buttons[index].config(text=self.current_player)
+
+            if self.check_winner():
+                messagebox.showinfo("Game Over", f"Player {self.current_player} wins!")
+                self.reset_board()
+            elif "" not in self.board:
+                messagebox.showinfo("Game Over", "It's a Tie!")
+                self.reset_board()
+            else:
+                self.current_player = "O" if self.current_player == "X" else "X"
+
+    def check_winner(self):
+        winning_combinations = [(0, 1, 2), (3, 4, 5), (6, 7, 8),  
+                                (0, 3, 6), (1, 4, 7), (2, 5, 8),  
+                                (0, 4, 8), (2, 4, 6)]  
+
+        for a, b, c in winning_combinations:
+            if self.board[a] == self.board[b] == self.board[c] and self.board[a] != "":
+                return True
+        return False
+
+    def reset_board(self):
+        self.board = [""] * 9
+        self.current_player = "X"
+        for btn in self.buttons:
+            btn.config(text="")
+
+    def run(self):
+        self.window.mainloop()
+
+# Run the game
+if __name__ == "__main__":
+    game = TicTacToe()
+    game.run()
